@@ -1,0 +1,18 @@
+[Unit]
+Description=IoT WebSocket Server Service
+After=syslog.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/iot/
+ExecStart=/opt/iot/wsserver.py
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+
+#  sudo systemctl daemon-reload
+#  sudo systemctl enable iotwsserver.service 
+#  sudo systemctl start iotwsserver.service
