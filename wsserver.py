@@ -72,6 +72,22 @@ def rgbSetter(ws, data, sem):
     # with sem:
     #     ws.send(r.text)
 
+def rgbPower(ws, data, sem):
+    print('{} got data "{}"'.format(datetime.now().strftime('%H:%M:%S'), data))
+    r = requests.get('http://iot-atx.lan/leds?rgb={}'.format(data['val']))
+    if r.status_code is not 200:
+        with sem:
+            # ws.send(r.text)
+            ws.send('Error')
+
+def rgbStrip(ws, data, sem):
+    print('{} got data "{}"'.format(datetime.now().strftime('%H:%M:%S'), data))
+    payload = {'h': data['h'], 's': data['s'], 'l': data['v'], 'r': data['loc']}
+    r = requests.get('http://rgb.lan/color', params=payload)
+    if r.status_code is not 200:
+        with sem:
+            # ws.send(r.text)
+            ws.send('Error')
 
 def app(environ, start_response):
     ws = environ['wsgi.websocket']
@@ -89,6 +105,11 @@ def app(environ, start_response):
             gevent.spawn(driveBedRoomLamps, ws, parsed_json, sem)
         if parsed_json['type'] == 'livingRoomLamps':
             gevent.spawn(driveLivingRoomLamps, ws, parsed_json, sem)
+        if parsed_json['type'] == 'rgbPower':
+            gevent.spawn(rgbPower, ws, parsed_json, sem)
+        if parsed_json['type'] == 'rgbStrip':
+            gevent.spawn(rgbStrip, ws, parsed_json, sem)
+
         # gevent.spawn(process, ws, data, sem)
         # gevent.spawn(rgbSetter, ws, data, sem)
         # if 'some' in data:
