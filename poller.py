@@ -8,24 +8,40 @@ Sensor poller
 import schedule
 import time
 import os
+import requests
 from common import DB
-#from systemd import journal 
-
 
 db = DB()
+
 
 def job():
     print("I'm working...")
 
+
 def rpiTemp():
     res = os.popen('vcgencmd measure_temp').readline()
-    rpi_temp = res.replace("temp=","").replace("'C\n","")
+    rpitemp = res.replace("temp=", "").replace("'C\n", "")
     sql = '''insert into sensors (value, type, location) values (%s, %s, %s)'''
-    data = (rpi_temp, 'temp', 'rpi')
+    data = (rpitemp, 'temp', 'rpi')
     db.insert(sql, data)
-#    journal.write('dd')
 
-schedule.every(10).seconds.do(rpiTemp)
+
+def bdrTemp():
+    bdrtemp = requests.get('http://iot-rms.lan/temp?temp=bdr')
+    sql = '''insert into sensors (value, type, location) values (%s, %s, %s)'''
+    data = (bdrtemp.text, 'temp', 'bdr')
+    db.insert(sql, data)
+
+
+def lvrTemp():
+    lvrtemp = requests.get('http://iot-rms.lan/temp?temp=lvr')
+    sql = '''insert into sensors (value, type, location) values (%s, %s, %s)'''
+    data = (lvrtemp.text, 'temp', 'lvr')
+    db.insert(sql, data)
+
+schedule.every(60).seconds.do(rpiTemp)
+schedule.every(60).seconds.do(bdrTemp)
+schedule.every(60).seconds.do(lvrTemp)
 
 while True:
     schedule.run_pending()
