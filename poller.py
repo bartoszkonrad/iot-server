@@ -27,17 +27,19 @@ def rpiTemp():
 
 
 def bdrTemp():
-    bdrtemp = requests.get('http://iot-rms.lan/temp?temp=bdr')
-    sql = '''insert into sensors (value, type, location) values (%s, %s, %s)'''
-    data = (bdrtemp.text, 'temp', 'bdr')
-    db.insert(sql, data)
+    bdrtemp = requests.get('http://iot-rms.lan/temp?sensor=bdr')
+    if bdrtemp.status_code == 200:
+        sql = '''insert into sensors (value, type, location) values (%s, %s, %s)'''
+        data = (bdrtemp.text, 'temp', 'bdr')
+        db.insert(sql, data)
 
 
 def lvrTemp():
-    lvrtemp = requests.get('http://iot-rms.lan/temp?temp=lvr')
-    sql = '''insert into sensors (value, type, location) values (%s, %s, %s)'''
-    data = (lvrtemp.text, 'temp', 'lvr')
-    db.insert(sql, data)
+    lvrtemp = requests.get('http://iot-rms.lan/temp?sensor=lvr')
+    if lvrtemp.status_code == 200:
+        sql = '''insert into sensors (value, type, location) values (%s, %s, %s)'''
+        data = (lvrtemp.text, 'temp', 'lvr')
+        db.insert(sql, data)
 
 schedule.every(60).seconds.do(rpiTemp)
 schedule.every(60).seconds.do(bdrTemp)

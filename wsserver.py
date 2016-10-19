@@ -22,7 +22,7 @@ def process(ws, data, sem):
 
 def driveKitchenLeds(ws, data, sem):
     print('{} got data "{}"'.format(datetime.now().strftime('%H:%M:%S'), data))
-    url = 'http://iot-atx.lan/leds?kitchen={}'.format(data['val'])
+    url = 'http://iot-atx.lan/leds?kth={}'.format(data['val'])
     r = requests.get(url)
     if r.status_code is not 200:
         with sem:
@@ -32,7 +32,7 @@ def driveKitchenLeds(ws, data, sem):
 
 def driveBathroomLeds(ws, data, sem):
     print('{} got data "{}"'.format(datetime.now().strftime('%H:%M:%S'), data))
-    url = 'http://iot-atx.lan/leds?bathroom={}'.format(data['val'])
+    url = 'http://iot-atx.lan/leds?bth={}'.format(data['val'])
     r = requests.get(url)
     if r.status_code is not 200:
         with sem:
@@ -58,23 +58,9 @@ def driveLivingRoomLamps(ws, data, sem):
             ws.send('Error')
 
 
-def rgbSetter(ws, data, sem):
-    if 'poweron' in data:
-        r = requests.get('http://iot-atx.lan/leds?rgb=1')
-    elif 'poweroff' in data:
-        r = requests.get('http://iot-atx.lan/leds?rgb=0')
-    else:
-        values = data.split(';')
-        payload = {'h': values[0], 's': values[1], 'l': values[2], 'r': values[3]}
-        r = requests.get('http://rgb.lan/color', params=payload)
-    print('{} got data "{}"'.format(datetime.now().strftime('%H:%M:%S'), data))
-    # print(r.url)
-    # with sem:
-    #     ws.send(r.text)
-
 def rgbPower(ws, data, sem):
     print('{} got data "{}"'.format(datetime.now().strftime('%H:%M:%S'), data))
-    r = requests.get('http://iot-atx.lan/leds?rgb={}'.format(data['val']))
+    r = requests.get('http://iot-atx.lan/leds?{}={}'.format(data['loc'], data['val']))
     if r.status_code is not 200:
         with sem:
             # ws.send(r.text)
